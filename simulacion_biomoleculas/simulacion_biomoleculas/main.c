@@ -15,11 +15,14 @@
 
 //he definido unas constantes pero tengo infinitas dudas con esto
 #define h 0.001
+#define k 1
 #define m 1
 #define T 1
-#define mu 1
+#define mu 0.0000001
 #define kb 1
 #define c0 2 * mu * kb * T
+#define x0 0.01
+#define n_steps 1000000
 
 //genera numeros aleatorios en dist plana [0, 1)
 float rdm(void){
@@ -38,27 +41,46 @@ void gauss(float * g1, float * g2){
 
 //funcion fuerza, esta aparte para poder irla cambiando
 float force(float x, float t){
-    return -1 * x;
+    return -1 * k * x;
 }
 
 //integración por euler maruyama
-float euler_maru(float t0, float x0){
+float euler_maru(float t_prev, float x_prev){
     float g1, g2;
     
     gauss(&g1, &g2);
     
-    return x0 + h * force(x0, t0) + sqrtf(c0 * h) * g1;
+    return x_prev + h * force(x_prev, t_prev) + sqrtf(c0 * h) * g1;
+}
+
+void save_trajectory(float * x, float * t){
+    FILE *f;
+    int i;
+    
+    f = fopen("trajectory.out", "w");
+    
+    for (i = 0; i < n_steps; i++){
+        fprintf(f, "%f %f\n", x[i], t[i]);
+    }
+    
+    fclose(f);
 }
 
 
 int main(int argc, const char * argv[]) {
     srand((unsigned int) time(NULL));
-    FILE *f;
+    int i = 0;
+    float x[n_steps];
+    float t[n_steps];
     
-    f = fopen("debug.out", "w");
+    t[0] = 0;
+    x[0] = x0;
     
-    printf("%f", euler_maru(0.0, 0.0));
+    for (i = 1; i < n_steps; i++){
+        x[i] = euler_maru(t[i - 1], x[i - 1]);
+        t[i] = t[i - 1] + h;
+    }
         
-    
+    save_trajectory(x, t);
     return 0;
 }
