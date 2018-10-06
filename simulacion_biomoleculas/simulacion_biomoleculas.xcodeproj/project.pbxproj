@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		0D57CE2221641BAD00A90DEB /* simulacion_biomoleculas */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = simulacion_biomoleculas; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D57CE2521641BAD00A90DEB /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		0D57CE2C2168D3E400A90DEB /* histogram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = histogram.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				0D57CE2521641BAD00A90DEB /* main.c */,
+				0D57CE2C2168D3E400A90DEB /* histogram.h */,
 			);
 			path = simulacion_biomoleculas;
 			sourceTree = "<group>";
