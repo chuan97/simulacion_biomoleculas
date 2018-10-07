@@ -14,16 +14,16 @@
 # define MAX_INT (double) (pow(2, 31) - 1) //el -1 es por convención, intervalo abierto
 
 //he definido unas constantes pero tengo infinitas dudas con esto
-#define h 0.01
+#define h 0.1
 #define k 1
 #define m 1
 #define T 1
-#define nu 0.0000001
+#define nu 10
 #define kb 1
 #define c0 2 * nu * kb * T
-#define x0 0
+#define x0 100
 #define v0 0
-#define n_steps 10000
+#define n_steps 1000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -93,7 +93,7 @@ void save_trajectory(float * t, float * x, float * v){
     FILE *f;
     int i;
 
-    f = fopen("trajectoryVerlet.out", "w");
+    f = fopen("trajectoryVerlet_10.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
     /*
@@ -131,7 +131,7 @@ int main(int argc, const char * argv[]) {
     }
     */
     /// Calcula la trayectoria (con velocidades) para Verlet explicito
-
+    
     for (i = 1; i < n_steps; i++){
         Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
