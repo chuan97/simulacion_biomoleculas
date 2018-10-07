@@ -14,15 +14,15 @@
 # define MAX_INT (double) (pow(2, 31) - 1)
 
 //he definido unas constantes pero tengo infinitas dudas con esto
-#define h 0.001
+#define h 0.01
 #define k 1
 #define m 1
 #define T 1
-#define mu 0.0000001
+#define mu 1
 #define kb 1
 #define c0 2 * mu * kb * T
-#define x0 0.01
-#define n_steps 1000000
+#define x0 0
+#define n_steps 1000
 
 //genera numeros aleatorios en dist plana [0, 1)
 float rdm(void){
