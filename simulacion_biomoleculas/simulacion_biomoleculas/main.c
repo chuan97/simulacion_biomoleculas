@@ -11,22 +11,31 @@
 #include <time.h>
 #include <math.h>
 
-# define MAX_INT (double) (pow(2, 31) - 1)
+# define MAX_INT (double) (pow(2, 31) - 1) //el -1 es por convención, intervalo abierto
 
 //he definido unas constantes pero tengo infinitas dudas con esto
 #define h 0.01
 #define k 1
 #define m 1
 #define T 1
-#define mu 1
+#define nu 0.0000001
 #define kb 1
-#define c0 2 * mu * kb * T
+#define c0 2 * nu * kb * T
 #define x0 0
-#define n_steps 1000
+#define v0 0
+#define n_steps 10000
+
+//Parámetros del Runge Kutta
+#define A1 0.5
+#define A2 0.5
+#define beta 1
+#define lambda0 1
+#define lambda1 1 // también se puede usar lambda1=0 y lambda2=1
+#define lambda2 0
 
 //genera numeros aleatorios en dist plana [0, 1)
 float rdm(void){
-    float r = rand() / MAX_INT; //el -1 es por convención, intervalo abierto
+    float r = rand() / MAX_INT;
     return r;
 }
 
