@@ -23,7 +23,7 @@
 #define c0 2 * nu * kb * T
 #define x0 100
 #define v0 0
-#define n_steps 1000
+#define n_steps 500000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -32,6 +32,12 @@
 #define lambda0 1
 #define lambda1 1 // también se puede usar lambda1=0 y lambda2=1
 #define lambda2 0
+
+// Algoritmo a usar
+//#define Euler/RK
+#define Verlet
+
+
 
 //genera numeros aleatorios en dist plana [0, 1)
 float rdm(void){
@@ -93,20 +99,20 @@ void save_trajectory(float * t, float * x, float * v){
     FILE *f;
     int i;
 
-    f = fopen("trajectoryVerlet_10.out", "w");
+    f = fopen("trajectoryVerlet.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
-    /*
+    #ifdef Euler/RK
     for (i = 0; i < n_steps; i++){
         fprintf(f, "%f %f\n", t[i], x[i]);
     }
-    */
+    #endif
     /// Guardar trayectoria (con velocidades) para Verlet explicito
-
+    #ifdef Verlet
     for (i = 0; i < n_steps; i++){
         fprintf(f, "%f %f %f\n", t[i], x[i], v[i]);
     }
-
+    #endif
 
     fclose(f);
 }
@@ -124,18 +130,18 @@ int main(int argc, const char * argv[]) {
     v[0] = v0;
     
     /// Calcula la trayectoria de Euler-Maruyama o RK2
-    /*
+    #ifdef Euler/RK
     for (i = 1; i < n_steps; i++){
         x[i] = Runge_kutta2(t[i - 1], x[i - 1]);
         t[i] = t[i - 1] + h;
     }
-    */
+    #endif
     /// Calcula la trayectoria (con velocidades) para Verlet explicito
-    
+    #ifdef Verlet
     for (i = 1; i < n_steps; i++){
         Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
-
+    #endif
 
     save_trajectory(t, x, v);
     return 0;
