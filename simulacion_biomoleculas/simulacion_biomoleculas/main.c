@@ -20,7 +20,7 @@
 #define T 1
 #define nu 10
 #define kb 1
-#define c0 (2 * nu * kb * T)
+#define c0 ( 2 * nu * kb * T )
 #define x0 100
 #define v0 0
 #define n_steps 10000
@@ -128,7 +128,7 @@ int main(int argc, const char* argv[]) {
     t[0] = 0;
     x[0] = x0;
     v[0] = v0;
-    
+
     /// Calcula la trayectoria de Euler-Maruyama o RK2
     #ifdef Euler_RK
     for (i = 1; i < n_steps; i++){
