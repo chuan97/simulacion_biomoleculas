@@ -8,7 +8,7 @@
 
 #ifndef parisi_rapuano_h
 #define parisi_rapuano_h
-
+#define NormRANu (2.3283063671E-10F)
 //este generador de numeros aleatorios genera un double en [0, 1)
 //para ello se debe inicializar ejecutando la funcion semilla_parisi_rapuano
 //una vez inicializado se puede llama a la funcion rand_parisi_rapuano cada vez que se desee un nuevo numero aleatorio
@@ -21,7 +21,7 @@ void semilla_parisi_rapuano(int seed)
     int i;
     
     if (seed==0)
-        srand(time(NULL));
+        srand((unsigned int) time(NULL));
     else
         srand(seed);
     

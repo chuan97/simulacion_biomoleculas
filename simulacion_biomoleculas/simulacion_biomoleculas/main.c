@@ -10,19 +10,20 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "parisi_rapuano.h"
 
 # define MAX_INT (double) (pow(2, 31) - 1) //el -1 es por convención, intervalo abierto
 
 //he definido unas constantes pero tengo infinitas dudas con esto
 #define h 0.1
-#define k 1
-#define m 1
-#define T 1
-#define nu 10
-#define kb 1
-#define c0 ( 2 * nu * kb * T )
-#define x0 100
-#define v0 0
+#define k 1.0
+#define m 1.0
+#define T 1.0
+#define nu 0.0
+#define kb 1.0
+#define c0 ( 2.0 * nu * kb * T )
+#define x0 100.0
+#define v0 0.0
 #define n_steps 10000
 
 //Parámetros del Runge Kutta
@@ -47,16 +48,16 @@ double rdm(void){
 
 //algoritmo de box-muller, si vemos que no usamos los dos numeros podemos quitar uno y así optimizamos y lo sacamos con un return
 void gauss(double* g1, double* g2){
-    double root = sqrtf(-1 * 2 * logf(rdm()));
-    double arg = 2 * M_PI * rdm();
+    double root = sqrt(-1 * 2 * log(rand_parisi_rapuano()));
+    double arg = 2.0 * M_PI * rand_parisi_rapuano();
 
-    *g1 = -1 * root * cosf(arg);
-    *g2 = -1 * root * sinf(arg);
+    *g1 = -1.0 * root * cos(arg);
+    *g2 = -1.0 * root * sin(arg);
 }
 
 //funcion fuerza, está aparte para poder irla cambiando
 double force(double x, double t){
-    return -1 * k * x;
+    return -1.0 * k * x;
 }
 
 //integración por euler maruyama
@@ -65,7 +66,7 @@ double Euler_maru(double t_prev, double x_prev){
 
     gauss(&g1, &g2);
 
-    return x_prev + h * force(x_prev, t_prev) + sqrtf(c0 * h) * g1;
+    return x_prev + h * force(x_prev, t_prev) + sqrt(c0 * h) * g1;
 }
 
 //Integración por Runge-Kutta(2o orden)
@@ -74,10 +75,10 @@ double Runge_kutta2(double t_prev, double x_prev){
 
     gauss(&Z1, &Z2);
 
-    g1=force(x_prev + sqrtf(c0 * h) * lambda1 * Z1, t_prev);
-    g2=force(x_prev + beta * h * g1 + sqrtf(c0 * h) * lambda2 * Z1, t_prev);
+    g1=force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
+    g2=force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
 
-    return x_prev + h * ( A1 * g1 + A2 * g2 ) + sqrtf(c0 * h) * lambda0 * Z1;
+    return x_prev + h * ( A1 * g1 + A2 * g2 ) + sqrt(c0 * h) * lambda0 * Z1;
 }
 
 //Integración por Verlet Explicito
@@ -86,11 +87,11 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
     *t_next = t_prev + h;
     gauss(&g1, &g2);
 
-    a = (1 - 0.5 * nu * h / m ) / (1 + 0.5 * nu * h / m) ;
-    b = 1.0 / (1 + 0.5 * nu * h / m) ; // no estoy seguro si el .0 hace falta
+    a = (1.0 - 0.5 * nu * h / m ) / (1.0 + 0.5 * nu * h / m) ;
+    b = 1.0 / (1.0 + 0.5 * nu * h / m) ; // no estoy seguro si el .0 hace falta
 
-    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * g1 / m ;
-    *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m +  b * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
+    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * c0 * g1 / m ;
+    *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m +  b * c0 * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
 
 }
 
@@ -99,7 +100,7 @@ void save_trajectory(double* t, double* x, double* v){
     FILE* f;
     int i;
 
-    f = fopen("trajectoryVerlet_10.out", "w");
+    f = fopen("trajectoryVerlet_0.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
     #ifdef Euler_RK
@@ -119,13 +120,13 @@ void save_trajectory(double* t, double* x, double* v){
 
 
 int main(int argc, const char* argv[]) {
-    srand((unsigned int) time(NULL));
+    semilla_parisi_rapuano(1234567);
     int i = 0;
     double x[n_steps];
     double t[n_steps];
     double v[n_steps];
     
-    t[0] = 0;
+    t[0] = 0.0;
     x[0] = x0;
     v[0] = v0;
 
