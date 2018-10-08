@@ -12,7 +12,7 @@ plt.style.use('seaborn-paper')
 
 filename = sys.argv[1]
 
-f = open("/Users/juan/Xcode_projects/simulacion_biomoleculas/simulacion_biomoleculas/DerivedData/simulacion_biomoleculas/Build/Products/Debug/" + filename + ".out", 'r')
+f = open(filename, 'r')
 
 t = [];
 x = [];
