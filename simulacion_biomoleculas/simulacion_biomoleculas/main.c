@@ -20,7 +20,7 @@
 #define T 1
 #define nu 10
 #define kb 1
-#define c0 2 * nu * kb * T
+#define c0 (2 * nu * kb * T)
 #define x0 100
 #define v0 0
 #define n_steps 500000
@@ -34,7 +34,7 @@
 #define lambda2 0
 
 // Algoritmo a usar
-//#define Euler/RK
+//#define Euler_RK
 #define Verlet
 
 
@@ -46,8 +46,8 @@ float rdm(void){
 }
 
 //algoritmo de box-muller, si vemos que no usamos los dos numeros podemos quitar uno y así optimizamos y lo sacamos con un return
-void gauss(float * g1, float * g2){
-    float root = sqrtf(-1 *2 * logf(rdm()));
+void gauss(float* g1, float* g2){
+    float root = sqrtf(-1 * 2 * logf(rdm()));
     float arg = 2 * M_PI * rdm();
 
     *g1 = -1 * root * cosf(arg);
@@ -81,9 +81,9 @@ float Runge_kutta2(float t_prev, float x_prev){
 }
 
 //Integración por Verlet Explicito
-void Verlet_exp(float t_prev, float x_prev, float v_prev, float * t_next, float * x_next, float * v_next){
+void Verlet_exp(float t_prev, float x_prev, float v_prev, float * t_next, float* x_next, float* v_next){
     float g1, g2, a, b;
-    * t_next = t_prev + h;
+    *t_next = t_prev + h;
     gauss(&g1, &g2);
 
     a = (1 - 0.5 * nu * h / m ) / (1 + 0.5 * nu * h / m) ;
@@ -96,13 +96,13 @@ void Verlet_exp(float t_prev, float x_prev, float v_prev, float * t_next, float 
 
 
 void save_trajectory(float * t, float * x, float * v){
-    FILE *f;
+    FILE* f;
     int i;
 
     f = fopen("trajectoryVerlet.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
-    #ifdef Euler/RK
+    #ifdef Euler_RK
     for (i = 0; i < n_steps; i++){
         fprintf(f, "%f %f\n", t[i], x[i]);
     }
@@ -118,7 +118,7 @@ void save_trajectory(float * t, float * x, float * v){
 }
 
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     srand((unsigned int) time(NULL));
     int i = 0;
     float x[n_steps];
@@ -130,7 +130,7 @@ int main(int argc, const char * argv[]) {
     v[0] = v0;
     
     /// Calcula la trayectoria de Euler-Maruyama o RK2
-    #ifdef Euler/RK
+    #ifdef Euler_RK
     for (i = 1; i < n_steps; i++){
         x[i] = Runge_kutta2(t[i - 1], x[i - 1]);
         t[i] = t[i - 1] + h;
