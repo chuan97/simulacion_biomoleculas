@@ -23,7 +23,7 @@
 #define c0 (2 * nu * kb * T)
 #define x0 100
 #define v0 0
-#define n_steps 500000
+#define n_steps 100000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -40,28 +40,28 @@
 
 
 //genera numeros aleatorios en dist plana [0, 1)
-float rdm(void){
-    float r = rand() / MAX_INT;
+double rdm(void){
+    double r = rand() / MAX_INT;
     return r;
 }
 
 //algoritmo de box-muller, si vemos que no usamos los dos numeros podemos quitar uno y así optimizamos y lo sacamos con un return
-void gauss(float* g1, float* g2){
-    float root = sqrtf(-1 * 2 * logf(rdm()));
-    float arg = 2 * M_PI * rdm();
+void gauss(double* g1, double* g2){
+    double root = sqrtf(-1 * 2 * logf(rdm()));
+    double arg = 2 * M_PI * rdm();
 
     *g1 = -1 * root * cosf(arg);
     *g2 = -1 * root * sinf(arg);
 }
 
 //funcion fuerza, está aparte para poder irla cambiando
-float force(float x, float t){
+double force(double x, double t){
     return -1 * k * x;
 }
 
 //integración por euler maruyama
-float Euler_maru(float t_prev, float x_prev){
-    float g1, g2;
+double Euler_maru(double t_prev, double x_prev){
+    double g1, g2;
 
     gauss(&g1, &g2);
 
@@ -69,8 +69,8 @@ float Euler_maru(float t_prev, float x_prev){
 }
 
 //Integración por Runge-Kutta(2o orden)
-float Runge_kutta2(float t_prev, float x_prev){
-    float g1, g2, Z1, Z2;
+double Runge_kutta2(double t_prev, double x_prev){
+    double g1, g2, Z1, Z2;
 
     gauss(&Z1, &Z2);
 
@@ -81,8 +81,8 @@ float Runge_kutta2(float t_prev, float x_prev){
 }
 
 //Integración por Verlet Explicito
-void Verlet_exp(float t_prev, float x_prev, float v_prev, float * t_next, float* x_next, float* v_next){
-    float g1, g2, a, b;
+void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next){
+    double g1, g2, a, b;
     *t_next = t_prev + h;
     gauss(&g1, &g2);
 
@@ -95,7 +95,7 @@ void Verlet_exp(float t_prev, float x_prev, float v_prev, float * t_next, float*
 }
 
 
-void save_trajectory(float * t, float * x, float * v){
+void save_trajectory(double* t, double* x, double* v){
     FILE* f;
     int i;
 
@@ -121,9 +121,9 @@ void save_trajectory(float * t, float * x, float * v){
 int main(int argc, const char* argv[]) {
     srand((unsigned int) time(NULL));
     int i = 0;
-    float x[n_steps];
-    float t[n_steps];
-    float v[n_steps];
+    double x[n_steps];
+    double t[n_steps];
+    double v[n_steps];
 
     t[0] = 0;
     x[0] = x0;
