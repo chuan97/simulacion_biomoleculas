@@ -46,15 +46,15 @@ float rdm(void){
 }
 
 //algoritmo de box-muller, si vemos que no usamos los dos numeros podemos quitar uno y así optimizamos y lo sacamos con un return
-void gauss(float * g1, float * g2){
-    float root = sqrtf(-1 *2 * logf(rdm()));
+void gauss(float* g1, float* g2){
+    float root = sqrtf(-1 * 2 * logf(rdm()));
     float arg = 2 * M_PI * rdm();
 
     *g1 = -1 * root * cosf(arg);
     *g2 = -1 * root * sinf(arg);
 }
 
-//funcion fuerza, esta aparte para poder irla cambiando
+//funcion fuerza, está aparte para poder irla cambiando
 float force(float x, float t){
     return -1 * k * x;
 }
@@ -81,22 +81,22 @@ float Runge_kutta2(float t_prev, float x_prev){
 }
 
 //Integración por Verlet Explicito
-void Verlet_exp(float t_prev, float x_prev, float v_prev, float * t_next, float * x_next, float * v_next){
+void Verlet_exp(float t_prev, float x_prev, float v_prev, float * t_next, float* x_next, float* v_next){
     float g1, g2, a, b;
-    * t_next = t_prev + h;
+    *t_next = t_prev + h;
     gauss(&g1, &g2);
 
     a = (1 - 0.5 * nu * h / m ) / (1 + 0.5 * nu * h / m) ;
     b = 1.0 / (1 + 0.5 * nu * h / m) ; // no estoy seguro si el .0 hace falta
 
-    * x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * g1 / m ;
-    * v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(* x_next, * t_next)) / m +  b * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
+    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * g1 / m ;
+    *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m +  b * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
 
 }
 
 
 void save_trajectory(float * t, float * x, float * v){
-    FILE *f;
+    FILE* f;
     int i;
 
     f = fopen("trajectoryVerlet.out", "w");
@@ -118,7 +118,7 @@ void save_trajectory(float * t, float * x, float * v){
 }
 
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     srand((unsigned int) time(NULL));
     int i = 0;
     float x[n_steps];
@@ -128,7 +128,7 @@ int main(int argc, const char * argv[]) {
     t[0] = 0;
     x[0] = x0;
     v[0] = v0;
-
+    
     /// Calcula la trayectoria de Euler-Maruyama o RK2
     #ifdef Euler_RK
     for (i = 1; i < n_steps; i++){
