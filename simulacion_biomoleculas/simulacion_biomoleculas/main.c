@@ -23,7 +23,7 @@
 #define c0 (2 * nu * kb * T)
 #define x0 100
 #define v0 0
-#define n_steps 100000
+#define n_steps 10000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -99,18 +99,18 @@ void save_trajectory(double* t, double* x, double* v){
     FILE* f;
     int i;
 
-    f = fopen("trajectoryVerlet.out", "w");
+    f = fopen("trajectoryVerlet_10.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
     #ifdef Euler_RK
     for (i = 0; i < n_steps; i++){
-        fprintf(f, "%f %f\n", t[i], x[i]);
+        fprintf(f, "%lf %lf\n", t[i], x[i]);
     }
     #endif
     /// Guardar trayectoria (con velocidades) para Verlet explicito
     #ifdef Verlet
     for (i = 0; i < n_steps; i++){
-        fprintf(f, "%f %f %f\n", t[i], x[i], v[i]);
+        fprintf(f, "%lf %lf %lf\n", t[i], x[i], v[i]);
     }
     #endif
 
@@ -124,7 +124,7 @@ int main(int argc, const char* argv[]) {
     double x[n_steps];
     double t[n_steps];
     double v[n_steps];
-
+    
     t[0] = 0;
     x[0] = x0;
     v[0] = v0;
