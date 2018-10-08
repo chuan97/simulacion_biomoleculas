@@ -95,7 +95,7 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
 }
 
 
-void save_trajectory(double * t, double * x, double * v){
+void save_trajectory(double* t, double* x, double* v){
     FILE* f;
     int i;
 
