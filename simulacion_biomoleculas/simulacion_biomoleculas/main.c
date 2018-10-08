@@ -20,7 +20,7 @@
 #define T 1
 #define nu 10
 #define kb 1
-#define c0 2 * nu * kb * T
+#define c0 ( 2 * nu * kb * T )
 #define x0 100
 #define v0 0
 #define n_steps 500000
@@ -34,7 +34,7 @@
 #define lambda2 0
 
 // Algoritmo a usar
-//#define Euler/RK
+//#define Euler_RK
 #define Verlet
 
 
@@ -102,7 +102,7 @@ void save_trajectory(float * t, float * x, float * v){
     f = fopen("trajectoryVerlet.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
-    #ifdef Euler/RK
+    #ifdef Euler_RK
     for (i = 0; i < n_steps; i++){
         fprintf(f, "%f %f\n", t[i], x[i]);
     }
@@ -130,7 +130,7 @@ int main(int argc, const char * argv[]) {
     v[0] = v0;
 
     /// Calcula la trayectoria de Euler-Maruyama o RK2
-    #ifdef Euler/RK
+    #ifdef Euler_RK
     for (i = 1; i < n_steps; i++){
         x[i] = Runge_kutta2(t[i - 1], x[i - 1]);
         t[i] = t[i - 1] + h;
