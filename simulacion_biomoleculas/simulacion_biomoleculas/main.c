@@ -12,6 +12,7 @@
 #include <math.h>
 #include "parisi_rapuano.h"
 
+
 # define MAX_INT (double) (pow(2, 31) - 1) //el -1 es por convención, intervalo abierto
 
 //he definido unas constantes pero tengo infinitas dudas con esto
@@ -24,7 +25,7 @@
 #define c0 ( 2.0 * nu * kb * T )
 #define x0 100.0
 #define v0 0.0
-#define n_steps 10000
+#define n_steps 1000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -41,15 +42,17 @@
 
 
 //genera numeros aleatorios en dist plana [0, 1)
+/*
 double rdm(void){
     double r = rand() / MAX_INT;
     return r;
 }
+*/
 
 //algoritmo de box-muller, si vemos que no usamos los dos numeros podemos quitar uno y así optimizamos y lo sacamos con un return
 void gauss(double* g1, double* g2){
-    double root = sqrt(-1.0 * 2.0 * log(rdm()));
-    double arg = 2.0 * M_PI * rdm();
+    double root = sqrt(-1.0 * 2.0 * log(rand_parisi_rapuano()));
+    double arg = 2.0 * M_PI * rand_parisi_rapuano();
 
     *g1 = -1.0 * root * cos(arg);
     *g2 = -1.0 * root * sin(arg);
@@ -97,11 +100,11 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
 }
 
 
-void save_trajectory(double* t, double* x, double* v){
+void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_kin, double* E_tot){
     FILE* f;
     int i;
 
-    f = fopen("trajectoryVerlet.out", "w");
+    f = fopen("trajectoryVerlet_0.0.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
     #ifdef Euler_RK
@@ -112,7 +115,7 @@ void save_trajectory(double* t, double* x, double* v){
     /// Guardar trayectoria (con velocidades) para Verlet explicito
     #ifdef Verlet
     for (i = 0; i < n_steps; i++){
-        fprintf(f, "%lf %lf %lf\n", t[i], x[i], v[i]);
+        fprintf(f, "%lf %lf %lf %lf %lf %lf\n", t[i], x[i], v[i], E_pot[i], E_kin[i], E_tot[i]);
     }
     #endif
 
@@ -126,6 +129,9 @@ int main(int argc, const char* argv[]) {
     double x[n_steps];
     double t[n_steps];
     double v[n_steps];
+    double E_pot[n_steps];
+    double E_kin[n_steps];
+    double E_tot[n_steps];
 
     t[0] = 0.0;
     x[0] = x0;
@@ -143,8 +149,14 @@ int main(int argc, const char* argv[]) {
     for (i = 1; i < n_steps; i++){
         Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
+
+    for (i = 0; i < n_steps; i++){
+        E_pot[i] = 0.5 * k * x[i] * x[i];
+        E_kin[i] = 0.5 * m * v[i] * v[i];
+        E_tot[i] = E_pot[i] + E_kin[i];
+    }
     #endif
 
-    save_trajectory(t, x, v);
+    save_trajectory(t, x, v, E_pot, E_kin, E_tot);
     return 0;
 }
