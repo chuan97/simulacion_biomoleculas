@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "parisi_rapuano.h"
 
 # define MAX_INT (double) (pow(2, 31) - 1) //el -1 es por convención, intervalo abierto
 
@@ -18,12 +19,12 @@
 #define k 1.0
 #define m 1.0
 #define T 1.0
-#define nu 0.01
+#define nu 0.0
 #define kb 1.0
 #define c0 ( 2.0 * nu * kb * T )
 #define x0 100.0
 #define v0 0.0
-#define n_steps 100000
+#define n_steps 10000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -120,7 +121,7 @@ void save_trajectory(double* t, double* x, double* v){
 
 
 int main(int argc, const char* argv[]) {
-    srand((unsigned int) time(NULL));
+    semilla_parisi_rapuano(1234567);
     int i = 0;
     double x[n_steps];
     double t[n_steps];
