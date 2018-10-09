@@ -26,6 +26,7 @@
 		0D57CE2221641BAD00A90DEB /* simulacion_biomoleculas */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = simulacion_biomoleculas; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D57CE2521641BAD00A90DEB /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		0D57CE2C2168D3E400A90DEB /* histogram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = histogram.h; sourceTree = "<group>"; };
+		0D8C9E67216CE4D10000B0A5 /* estimadores_estadisticos.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = estimadores_estadisticos.h; sourceTree = "<group>"; };
 		0DBADAA4216BA15D00BBE129 /* parisi_rapuano.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = parisi_rapuano.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -62,6 +63,7 @@
 				0D57CE2521641BAD00A90DEB /* main.c */,
 				0D57CE2C2168D3E400A90DEB /* histogram.h */,
 				0DBADAA4216BA15D00BBE129 /* parisi_rapuano.h */,
+				0D8C9E67216CE4D10000B0A5 /* estimadores_estadisticos.h */,
 			);
 			path = simulacion_biomoleculas;
 			sourceTree = "<group>";
