@@ -14,16 +14,16 @@
 #include "estimadores_estadisticos.h"
 
 //he definido unas constantes pero tengo infinitas dudas con esto
-#define h 0.1
+#define h 0.01
 #define k 1.0
 #define m 1.0
 #define T 1.0
-#define nu 0.0
+#define nu 10
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
 #define x0 10.0
 #define v0 0.0
-#define n_steps 1000
+#define n_steps 20000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -34,8 +34,8 @@
 #define lambda2 0.0
 
 // Algoritmo a usar
-//#define Euler_RK
-#define Verlet
+#define Euler_RK
+//#define Verlet
 
 void gauss(double* g1, double* g2);
 double force(double x, double t);
@@ -45,7 +45,7 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
 void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_kin, double* E_tot);
 
 int main(int argc, const char* argv[]) {
-    semilla_parisi_rapuano(1234567);
+    semilla_parisi_rapuano(0);
     int i = 0;
     double x[n_steps];
     double t[n_steps];
@@ -111,8 +111,8 @@ double Runge_kutta2(double t_prev, double x_prev){
     
     gauss(&Z1, &Z2);
     
-    g1=force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
-    g2=force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
+    g1 = force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
+    g2 = force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
     
     return x_prev + h * ( A1 * g1 + A2 * g2 ) + sqrt(c0 * h) * lambda0 * Z1;
 }
@@ -137,7 +137,7 @@ void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_k
     FILE* f;
     int i;
     
-    f = fopen("trajectoryVerlet_0.0.out", "w");
+    f = fopen("trajectoryVerlet_10.out", "w");
     
     /// Guardar trayectoria para Euler-Maruyama y RK2
 #ifdef Euler_RK
