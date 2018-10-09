@@ -11,6 +11,7 @@
 #include <time.h>
 #include <math.h>
 #include "parisi_rapuano.h"
+#include "estimadores_estadisticos.h"
 
 
 # define MAX_INT (double) (pow(2, 31) - 1) //el -1 es por convención, intervalo abierto
@@ -22,8 +23,8 @@
 #define T 1.0
 #define nu 0.0
 #define kb 1.0
-#define c0 ( 2.0 * nu * kb * T )
-#define x0 100.0
+#define c0 (2.0 * nu * kb * T)
+#define x0 10.0
 #define v0 0.0
 #define n_steps 1000
 
@@ -42,7 +43,6 @@
 
 
 //genera numeros aleatorios en dist plana [0, 1)
-/*
 double rdm(void){
     double r = rand() / MAX_INT;
     return r;
@@ -53,7 +53,7 @@ double rdm(void){
 void gauss(double* g1, double* g2){
     double root = sqrt(-1.0 * 2.0 * log(rand_parisi_rapuano()));
     double arg = 2.0 * M_PI * rand_parisi_rapuano();
-
+    
     *g1 = -1.0 * root * cos(arg);
     *g2 = -1.0 * root * sin(arg);
 }
@@ -66,21 +66,21 @@ double force(double x, double t){
 //integración por euler maruyama
 double Euler_maru(double t_prev, double x_prev){
     double g1, g2;
-
+    
     gauss(&g1, &g2);
-
+    
     return x_prev + h * force(x_prev, t_prev) + sqrt(c0 * h) * g1;
 }
 
 //Integración por Runge-Kutta(2o orden)
 double Runge_kutta2(double t_prev, double x_prev){
     double g1, g2, Z1, Z2;
-
+    
     gauss(&Z1, &Z2);
-
+    
     g1=force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
     g2=force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
-
+    
     return x_prev + h * ( A1 * g1 + A2 * g2 ) + sqrt(c0 * h) * lambda0 * Z1;
 }
 
@@ -90,13 +90,13 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
     *t_next = t_prev + h;
 
     gauss(&g1, &g2);
-
+    
     a = (1.0 - 0.5 * nu * h / m ) / (1.0 + 0.5 * nu * h / m) ;
     b = 1.0 / (1.0 + 0.5 * nu * h / m) ; // no estoy seguro si el .0 hace falta
 
-    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * c0 * g1 / m ; // se multiplican por c0 los numeros aleatorios para que se cumplan las condiciones estadisticas del metodo
+    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * c0 * g1 / m ;
     *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m +  b * c0 * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
-
+    
 }
 
 
@@ -107,18 +107,18 @@ void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_k
     f = fopen("trajectoryVerlet_0.0.out", "w");
 
     /// Guardar trayectoria para Euler-Maruyama y RK2
-    #ifdef Euler_RK
+#ifdef Euler_RK
     for (i = 0; i < n_steps; i++){
         fprintf(f, "%lf %lf\n", t[i], x[i]);
     }
-    #endif
+#endif
     /// Guardar trayectoria (con velocidades) para Verlet explicito
-    #ifdef Verlet
+#ifdef Verlet
     for (i = 0; i < n_steps; i++){
         fprintf(f, "%lf %lf %lf %lf %lf %lf\n", t[i], x[i], v[i], E_pot[i], E_kin[i], E_tot[i]);
     }
-    #endif
-
+#endif
+    
     fclose(f);
 }
 
