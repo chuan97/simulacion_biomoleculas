@@ -2,13 +2,14 @@
 //  parisi_rapuano.h
 //  simulacion_biomoleculas
 //
-//  Created by Juan Román Roche on 08/10/2018.
+//  Created by Juan Román Roche on 09/10/2018.
 //  Copyright © 2018 Grupo_5. All rights reserved.
 //
 
 #ifndef parisi_rapuano_h
 #define parisi_rapuano_h
 #define NormRANu (2.3283063671E-10F)
+
 //este generador de numeros aleatorios genera un double en [0, 1)
 //para ello se debe inicializar ejecutando la funcion semilla_parisi_rapuano
 //una vez inicializado se puede llama a la funcion rand_parisi_rapuano cada vez que se desee un nuevo numero aleatorio
@@ -21,7 +22,7 @@ void semilla_parisi_rapuano(int seed)
     int i;
     
     if (seed==0)
-        srand((unsigned int) time(NULL));
+        srand((unsigned int )time(NULL));
     else
         srand(seed);
     
@@ -47,6 +48,5 @@ double interval_rand_parisi_rapuano(double a, double b)
 {
     return (a+(b-a)*rand_parisi_rapuano());
 }
-
 
 #endif /* parisi_rapuano_h */
