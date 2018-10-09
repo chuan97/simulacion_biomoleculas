@@ -43,6 +43,7 @@
 
 
 //genera numeros aleatorios en dist plana [0, 1)
+/*
 double rdm(void){
     double r = rand() / MAX_INT;
     return r;
