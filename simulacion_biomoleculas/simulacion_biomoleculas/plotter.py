@@ -16,12 +16,24 @@ f = open(filename, 'r')
 
 t = [];
 x = [];
+v = [];
+V = [];
+T = [];
+E = [];
 
 for row in f:
-    x.append(float(row.split(sep = ' ')[1]))
     t.append(float(row.split(sep = ' ')[0]))
+    x.append(float(row.split(sep = ' ')[1]))
+    v.append(float(row.split(sep = ' ')[2]))
+    V.append(float(row.split(sep = ' ')[3]))
+    T.append(float(row.split(sep = ' ')[4]))
+    E.append(float(row.split(sep = ' ')[5]))
+    
+    
 
-plt.plot(t, x)
+plt.plot(t, V)
+plt.plot(t, T)
+plt.plot(t, E)
 plt.show()
 
 
