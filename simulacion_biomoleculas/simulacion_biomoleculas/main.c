@@ -23,7 +23,7 @@
 #define c0 (2.0 * nu * kb * T)
 #define x0 10.0
 #define v0 0.0
-#define n_steps 100000
+#define n_steps 20000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -118,10 +118,10 @@ double Runge_kutta2(double t_prev, double x_prev){
     double g1, g2, Z1, Z2;
 
     gauss(&Z1, &Z2);
-
-    g1=force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
-    g2=force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
-
+    
+    g1 = force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
+    g2 = force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
+    
     return x_prev + h * ( A1 * g1 + A2 * g2 ) + sqrt(c0 * h) * lambda0 * Z1;
 }
 
