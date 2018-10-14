@@ -13,16 +13,16 @@
 #include "parisi_rapuano.h"
 #include "estimadores_estadisticos.h"
 
-#define h 0.01
+#define h 0.0001
 #define k 1.0
 #define m 1.0
 #define T 1.0
-#define nu 10.0
+#define nu 0.0
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
-#define x0 0.0
+#define x0 1.0
 #define v0 0.0
-#define n_steps 100000
+#define n_steps 1000000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -32,93 +32,69 @@
 #define lambda1 1.0 // también se puede usar lambda1=0 y lambda2=1
 #define lambda2 0.0
 
-// Algoritmo a usar
-//#define Euler_RK
-#define Verlet
-
 void gauss(double* g1, double* g2);
 double force(double x, double t);
-double Euler_maru(double t_prev, double x_prev);
+void Euler_maru(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
 double Runge_kutta2(double t_prev, double x_prev);
 void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
-void save_trajectory_Verlet(double* t, double* x, double* v, double* E_pot, double* E_kin, double* E_tot);
-void save_trajectory_Euler_RK(double* t, double* x);
+void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_kin);
+
 
 int main(int argc, const char* argv[]) {
     semilla_parisi_rapuano(0);
     int i = 0;
-    double x[n_steps];
-    double t[n_steps];
+    double* x = malloc(n_steps * sizeof(double));
+    double* t = malloc(n_steps * sizeof(double));
+    double* v = malloc(n_steps * sizeof(double));
+    double* E_pot = malloc(n_steps * sizeof(double));
+    double* E_kin = malloc(n_steps * sizeof(double));
 
     t[0] = 0.0;
     x[0] = x0;
-
-    /// Calcula la trayectoria de Euler-Maruyama o RK2
-    #ifdef Euler_RK
-    for (i = 1; i < n_steps; i++){
-        x[i] = Runge_kutta2(t[i - 1], x[i - 1]);
-        t[i] = t[i - 1] + h;
-    }
-
-    save_trajectory_Euler_RK(t, x);
-
-    #endif
-
-    /// Calcula la trayectoria (con velocidades) para Verlet explicito
-    #ifdef Verlet
-    double v[n_steps];
-    double E_pot[n_steps];
-    double E_kin[n_steps];
-    double E_tot[n_steps];
-
     v[0] = v0;
 
     for (i = 1; i < n_steps; i++){
-        Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
 
     for (i = 0; i < n_steps; i++){
         E_pot[i] = 0.5 * k * x[i] * x[i];
         E_kin[i] = 0.5 * m * v[i] * v[i];
-        E_tot[i] = E_pot[i] + E_kin[i];
-    }
-    save_trajectory_Verlet(t, x, v, E_pot, E_kin, E_tot);
-
-    #endif
-    double sum_kit = 0, sum_pot = 0;
-    for (i = 0; i < n_steps; i++){
-        if (i % 10 == 0){
-            sum_kit += E_kin[i];
-            sum_pot += E_pot[i];
-        }
     }
     
-    printf("%lf %lf\n", 10 * sum_kit / n_steps, 10 * sum_pot / n_steps);
+    save_trajectory(t, x, v, E_pot, E_kin);
 
+    free(x);
+    free(v);
+    free(t);
+    free(E_pot);
+    free(E_kin);
+    
     return 0;
 }
 
 //algoritmo de box-muller, si vemos que no usamos los dos numeros podemos quitar uno y así optimizamos y lo sacamos con un return
 void gauss(double* g1, double* g2){
-    double root = sqrt(-1.0 * 2.0 * log(rand_parisi_rapuano()));
+    double root = sqrt(-2.0 * log(rand_parisi_rapuano()));
     double arg = 2.0 * M_PI * rand_parisi_rapuano();
 
-    *g1 = -1.0 * root * cos(arg);
-    *g2 = -1.0 * root * sin(arg);
+    *g1 = -root * cos(arg);
+    *g2 = -root * sin(arg);
 }
 
 //funcion fuerza, está aparte para poder irla cambiando
 double force(double x, double t){
-    return -1.0 * k * x;
+    return -k * x;
 }
 
 //integración por euler maruyama
-double Euler_maru(double t_prev, double x_prev){
+void Euler_maru(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next){
     double g1, g2;
-
     gauss(&g1, &g2);
-
-    return x_prev + h * force(x_prev, t_prev) + sqrt(c0 * h) * g1;
+    
+    *t_next = t_prev + h;
+    *x_next = x_prev + h * v_prev;
+    *v_next = v_prev + (h * (-nu * v_prev + force(x_prev, t_prev)) + sqrt(c0 * h) * g1) / m;
 }
 
 //Integración por Runge-Kutta(2o orden)
@@ -141,22 +117,21 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
     gauss(&g1, &g2);
 
     a = (1.0 - 0.5 * nu * h / m ) / (1.0 + 0.5 * nu * h / m) ;
-    b = 1.0 / (1.0 + 0.5 * nu * h / m) ; // no estoy seguro si el .0 hace falta
+    b = 1.0 / (1.0 + 0.5 * nu * h / m) ;
     
     *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * sqrt(h * c0) * g1 / m ;
-    *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m + b * sqrt(h * c0) * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
-    
+    *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m + b * sqrt(h * c0) * g1 / m ;
 }
 
 
-void save_trajectory_Verlet(double* t, double* x, double* v, double* E_pot, double* E_kin, double* E_tot){
+void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_kin){
     FILE* f;
     int i;
 
-    f = fopen("trajectoryVerlet_nu10.0_h0.01.out", "w");
+    f = fopen("prueba.out", "w");
 
     for (i = 0; i < n_steps; i++){
-        fprintf(f, "%lf %lf %lf %lf %lf %lf\n", t[i], x[i], v[i], E_pot[i], E_kin[i], E_tot[i]);
+        fprintf(f, "%lf %lf %lf %lf %lf %lf\n", t[i], x[i], v[i], E_pot[i], E_kin[i], E_kin[i] + E_pot[i]);
     }
 
     fclose(f);
