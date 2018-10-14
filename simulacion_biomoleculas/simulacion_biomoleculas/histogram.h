@@ -19,10 +19,10 @@
 //M -> salida: valor Maximo de la distribucion
 
 
-void histograma (float * data, float * Hist, int N_datos, int intervalos, float * delta, float * m, float * M)
+void histograma (double * data, double * Hist, int N_datos, int intervalos, double * delta, double * m, double * M)
 {
     int j, indice;
-    float span, Min, Max;
+    double span, Min, Max;
     
     for (j=0; j<intervalos; j++)         //inicializa a cero el histograma
         Hist[j]=0;

@@ -12,8 +12,9 @@
 #include <math.h>
 #include "parisi_rapuano.h"
 #include "estimadores_estadisticos.h"
+#include "histogram.h"
 
-#define h 0.001
+#define h 0.0001
 #define k 1.0
 #define m 1.0
 #define T 1.0
@@ -22,7 +23,8 @@
 #define c0 (2.0 * nu * kb * T)
 #define x0 0.0
 #define v0 0.0
-#define n_steps 10000000
+#define n_steps 1000000000
+#define n_term (n_steps / 10) //cantidad arbitraria
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -32,27 +34,36 @@
 #define lambda1 1.0 // también se puede usar lambda1=0 y lambda2=1
 #define lambda2 0.0
 
-void gauss(double* g1, double* g2);
 double force(double x, double t);
 void Euler_maru(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
 void Runge_kutta2(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
 void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
 void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_pot);
 void control_parameters(double* x, double* v, double* E_kin, double* E_pot);
-
+double gauss(void);
 
 int main(int argc, const char* argv[]) {
     semilla_parisi_rapuano(0);
     int i = 0;
-    double* x = malloc(n_steps * sizeof(double));
+    double* x = malloc(n_steps * sizeof(double)); //declarados en el heap en vez del stack para tener más espacio
     double* t = malloc(n_steps * sizeof(double));
     double* v = malloc(n_steps * sizeof(double));
     double* E_pot = malloc(n_steps * sizeof(double));
     double* E_kin = malloc(n_steps * sizeof(double));
-
+    
+    //termalización
     t[0] = 0.0;
     x[0] = x0;
     v[0] = v0;
+    
+    for (i = 1; i < n_term; i++){
+        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+    }
+    //fin de termalización, se toman la última posición y velocidad como nuevos parámetros de inicio
+    
+    t[0] = 0.0;
+    x[0] = x[n_term - 1];
+    v[0] = v[n_term - 1];
 
     for (i = 1; i < n_steps; i++){
         Runge_kutta2(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
@@ -75,14 +86,30 @@ int main(int argc, const char* argv[]) {
     return 0;
 }
 
-//algoritmo de box-muller, si vemos que no usamos los dos numeros podemos quitar uno y así optimizamos y lo sacamos con un return
-void gauss(double* g1, double* g2){
-    double root = sqrt(-2.0 * log(rand_parisi_rapuano()));
-    double arg = 2.0 * M_PI * rand_parisi_rapuano();
-
-    *g1 = -root * cos(arg);
-    *g2 = -root * sin(arg);
+//algoritmo de box-muller, optimizado
+double gauss(void){
+    static int phase = 1;
+    static double g1, g2;
+    
+    if (phase == 1){
+        phase = 2;
+        
+        double root = sqrt(-2.0 * log(rand_parisi_rapuano()));
+        double arg = 2.0 * M_PI * rand_parisi_rapuano();
+        
+        g1 = -root * cos(arg);
+        g2 = -root * sin(arg);
+        
+        return g1;
+    }
+    
+    else{
+        phase = 1;
+        
+        return g2;
+    }
 }
+
 
 //funcion fuerza, está aparte para poder irla cambiando
 double force(double x, double t){
@@ -91,20 +118,17 @@ double force(double x, double t){
 
 //integración por euler maruyama
 void Euler_maru(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next){
-    double g1, g2;
-    gauss(&g1, &g2);
-    
     *t_next = t_prev + h;
     *x_next = x_prev + h * v_prev;
-    *v_next = v_prev + (h * (-nu * v_prev + force(x_prev, t_prev)) + sqrt(c0 * h) * g1) / m;
+    *v_next = v_prev + (h * (-nu * v_prev + force(x_prev, t_prev)) + sqrt(c0 * h) * gauss()) / m;
 }
 
 //Integración por Runge-Kutta(2o orden)
 void Runge_kutta2(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next){
-    double g1, g2, Z1, Z2;
-
-    gauss(&Z1, &Z2);
+    double g1, g2, Z1;
     
+    Z1 = gauss();
+
     g1 = -nu * v_prev + force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
     g2 = -nu * v_prev + force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
     
@@ -115,14 +139,14 @@ void Runge_kutta2(double t_prev, double x_prev, double v_prev, double* t_next, d
 
 //Integración por Verlet Explicito
 void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next){
-    double g1, g2, a, b;
-    *t_next = t_prev + h;
-
-    gauss(&g1, &g2);
+    double g1, a, b;
+   
+    g1 = gauss();
 
     a = (1.0 - 0.5 * nu * h / m ) / (1.0 + 0.5 * nu * h / m) ;
     b = 1.0 / (1.0 + 0.5 * nu * h / m) ;
     
+    *t_next = t_prev + h;
     *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * sqrt(h * c0) * g1 / m ;
     *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m + b * sqrt(h * c0) * g1 / m ;
 }
