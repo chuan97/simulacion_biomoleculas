@@ -13,7 +13,6 @@
 #include "parisi_rapuano.h"
 #include "estimadores_estadisticos.h"
 
-//he definido unas constantes pero tengo infinitas dudas con esto
 #define h 0.01
 #define k 1.0
 #define m 1.0
@@ -21,9 +20,9 @@
 #define nu 10
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
-#define x0 10.0
+#define x0 0.0
 #define v0 0.0
-#define n_steps 20000
+#define n_steps 100000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -34,8 +33,8 @@
 #define lambda2 0.0
 
 // Algoritmo a usar
-#define Euler_RK
-//#define Verlet
+//#define Euler_RK
+#define Verlet
 
 void gauss(double* g1, double* g2);
 double force(double x, double t);
@@ -77,6 +76,15 @@ int main(int argc, const char* argv[]) {
         E_tot[i] = E_pot[i] + E_kin[i];
     }
     #endif
+    double sum_kit = 0, sum_pot = 0;
+    for (i = 0; i < n_steps; i++){
+        if (i % 10 == 0){
+            sum_kit += E_kin[i];
+            sum_pot += E_pot[i];
+        }
+    }
+    
+    printf("%lf %lf\n", 10 * sum_kit / n_steps, 10 * sum_pot / n_steps);
 
     save_trajectory(t, x, v, E_pot, E_kin, E_tot);
     return 0;
@@ -127,8 +135,8 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
     a = (1.0 - 0.5 * nu * h / m ) / (1.0 + 0.5 * nu * h / m) ;
     b = 1.0 / (1.0 + 0.5 * nu * h / m) ; // no estoy seguro si el .0 hace falta
     
-    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * c0 * g1 / m ;
-    *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m +  b * c0 * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
+    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * sqrt(h * c0) * g1 / m ;
+    *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m + b * sqrt(h * c0) * g1 / m ; // no tengo claro si el número aleatorio tiene que ser el mismo o no
     
 }
 
