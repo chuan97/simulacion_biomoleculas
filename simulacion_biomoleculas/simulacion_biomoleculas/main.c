@@ -110,7 +110,6 @@ double gauss(void){
     }
 }
 
-
 //funcion fuerza, está aparte para poder irla cambiando
 double force(double x, double t){
     return -k * x;
