@@ -21,9 +21,9 @@
 #define nu 1.0
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
-#define x0 0.0
+#define x0 1.0
 #define v0 0.0
-#define n_steps 1000000000
+#define n_steps 10000000
 #define n_term (n_steps / 10) //cantidad arbitraria
 
 //Parámetros del Runge Kutta
@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
     v[0] = v[n_term - 1];
 
     for (i = 1; i < n_steps; i++){
-        Runge_kutta2(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
 
     for (i = 0; i < n_steps; i++){
@@ -77,7 +77,7 @@ int main(int argc, const char* argv[]) {
     save_trajectory(t, x, v, E_kin, E_pot);
     control_parameters(x, v, E_kin, E_pot);
 
-    free(x);
+    free(x); //liberando el heap
     free(v);
     free(t);
     free(E_pot);
@@ -147,7 +147,7 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
     b = 1.0 / (1.0 + 0.5 * nu * h / m) ;
     
     *t_next = t_prev + h;
-    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * sqrt(h * c0) * g1 / m ;
+    *x_next = x_prev + b * h * v_prev + 0.5 * b * h * h * force(x_prev, t_prev) / m + 0.5 * b * h * sqrt(h * c0) * g1 / m ;
     *v_next = a * v_prev + 0.5 * h * ( a * force(x_prev, t_prev) + force(*x_next, *t_next)) / m + b * sqrt(h * c0) * g1 / m ;
 }
 
