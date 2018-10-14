@@ -14,16 +14,16 @@
 #include "estimadores_estadisticos.h"
 #include "histogram.h"
 
-#define h 0.0001
+#define h 0.1
 #define k 1.0
 #define m 1.0
 #define T 1.0
-#define nu 1.0
+#define nu 0.0
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
 #define x0 1.0
 #define v0 0.0
-#define n_steps 10000000
+#define n_steps 100000000
 #define n_term (n_steps / 10) //cantidad arbitraria
 
 //Parámetros del Runge Kutta
@@ -57,7 +57,7 @@ int main(int argc, const char* argv[]) {
     v[0] = v0;
     
     for (i = 1; i < n_term; i++){
-        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
     //fin de termalización, se toman la última posición y velocidad como nuevos parámetros de inicio
     
@@ -133,7 +133,7 @@ void Runge_kutta2(double t_prev, double x_prev, double v_prev, double* t_next, d
     g2 = -nu * v_prev + force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
     
     *t_next = t_prev + h;
-    *x_next = x_prev + h * v_prev;
+    *x_next = x_prev + h * v_prev; // o h * (A1 * v_prev + A2 * v_next)???
     *v_next = v_prev + (h * ( A1 * g1 + A2 * g2 ) + sqrt(c0 * h) * lambda0 * Z1) / m;
 }
 
@@ -168,10 +168,14 @@ void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_p
 }
 
 void control_parameters(double* x, double* v, double* E_kin, double* E_pot){
-    double mean_kin, var_kin, mean_pot, var_pot;
+    double mean_kin, var_kin, mean_pot, var_pot, mean_x, var_x, mean_v, var_v;
     
     estimadores_estadisticos(E_kin, n_steps, &mean_kin, &var_kin);
     estimadores_estadisticos(E_pot, n_steps, &mean_pot, &var_pot);
+    estimadores_estadisticos(x, n_steps, &mean_x, &var_x);
+    estimadores_estadisticos(v, n_steps, &mean_v, &var_v);
     
     printf("Energía cinética media: %lf\nEnergía potencial media: %lf\nEnergía térmica: %lf\n", mean_kin, mean_pot, 0.5 * kb * T);
+    printf("Posición media: %lf, Varianza: %lf\n", mean_x, var_x);
+    printf("Velocidad media: %lf, Varianza: %lf\n", mean_v, var_v);
 }
