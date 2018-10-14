@@ -13,16 +13,16 @@
 #include "parisi_rapuano.h"
 #include "estimadores_estadisticos.h"
 
-#define h 0.0001
+#define h 0.001
 #define k 1.0
 #define m 1.0
 #define T 1.0
-#define nu 0.0
+#define nu 1.0
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
-#define x0 1.0
+#define x0 0.0
 #define v0 0.0
-#define n_steps 1000000
+#define n_steps 10000000
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -35,9 +35,10 @@
 void gauss(double* g1, double* g2);
 double force(double x, double t);
 void Euler_maru(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
-double Runge_kutta2(double t_prev, double x_prev);
+void Runge_kutta2(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
 void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next);
-void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_kin);
+void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_pot);
+void control_parameters(double* x, double* v, double* E_kin, double* E_pot);
 
 
 int main(int argc, const char* argv[]) {
@@ -54,7 +55,7 @@ int main(int argc, const char* argv[]) {
     v[0] = v0;
 
     for (i = 1; i < n_steps; i++){
-        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Runge_kutta2(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
 
     for (i = 0; i < n_steps; i++){
@@ -62,7 +63,8 @@ int main(int argc, const char* argv[]) {
         E_kin[i] = 0.5 * m * v[i] * v[i];
     }
     
-    save_trajectory(t, x, v, E_pot, E_kin);
+    save_trajectory(t, x, v, E_kin, E_pot);
+    control_parameters(x, v, E_kin, E_pot);
 
     free(x);
     free(v);
@@ -98,15 +100,17 @@ void Euler_maru(double t_prev, double x_prev, double v_prev, double* t_next, dou
 }
 
 //Integración por Runge-Kutta(2o orden)
-double Runge_kutta2(double t_prev, double x_prev){
+void Runge_kutta2(double t_prev, double x_prev, double v_prev, double* t_next, double* x_next, double* v_next){
     double g1, g2, Z1, Z2;
 
     gauss(&Z1, &Z2);
     
-    g1 = force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
-    g2 = force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
+    g1 = -nu * v_prev + force(x_prev + sqrt(c0 * h) * lambda1 * Z1, t_prev);
+    g2 = -nu * v_prev + force(x_prev + beta * h * g1 + sqrt(c0 * h) * lambda2 * Z1, t_prev);
     
-    return x_prev + h * ( A1 * g1 + A2 * g2 ) + sqrt(c0 * h) * lambda0 * Z1;
+    *t_next = t_prev + h;
+    *x_next = x_prev + h * v_prev;
+    *v_next = v_prev + (h * ( A1 * g1 + A2 * g2 ) + sqrt(c0 * h) * lambda0 * Z1) / m;
 }
 
 //Integración por Verlet Explicito
@@ -124,28 +128,26 @@ void Verlet_exp(double t_prev, double x_prev, double v_prev, double* t_next, dou
 }
 
 
-void save_trajectory(double* t, double* x, double* v, double* E_pot, double* E_kin){
+void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_pot){
     FILE* f;
     int i;
 
     f = fopen("prueba.out", "w");
+    
+    int increase = n_steps / 100000; // limita los puntos a plotear a 100000, para no saturar el plotter
 
-    for (i = 0; i < n_steps; i++){
+    for (i = 0; i < n_steps; i += increase){
         fprintf(f, "%lf %lf %lf %lf %lf %lf\n", t[i], x[i], v[i], E_pot[i], E_kin[i], E_kin[i] + E_pot[i]);
     }
 
     fclose(f);
 }
 
-void save_trajectory_Euler_RK(double* t, double* x){
-    FILE* f;
-    int i;
-
-    f = fopen("trajectoryRK_nu10.0_h0.01.out", "w");
-
-    for (i = 0; i < n_steps; i++){
-        fprintf(f, "%lf %lf\n", t[i], x[i]);
-    }
-
-    fclose(f);
+void control_parameters(double* x, double* v, double* E_kin, double* E_pot){
+    double mean_kin, var_kin, mean_pot, var_pot;
+    
+    estimadores_estadisticos(E_kin, n_steps, &mean_kin, &var_kin);
+    estimadores_estadisticos(E_pot, n_steps, &mean_pot, &var_pot);
+    
+    printf("Energía cinética media: %lf\nEnergía potencial media: %lf\nEnergía térmica: %lf\n", mean_kin, mean_pot, 0.5 * kb * T);
 }
