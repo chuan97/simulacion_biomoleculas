@@ -61,10 +61,11 @@ plt.ylabel('x')
 plt.subplot(2, 2, 4)
 plt.plot(t, x_4, color = next(palette))
 plt.title('damping = 10.0')
+
 plt.xlabel('t')
 
 plt.tight_layout()
-plt.suptitle('Euler Maruyama')
+plt.suptitle('Euler h = 0.0001')
 plt.subplots_adjust(top=0.88)
 
 plt.show()

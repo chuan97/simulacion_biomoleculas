@@ -14,16 +14,16 @@
 #include "estimadores_estadisticos.h"
 #include "histogram.h"
 
-#define h 0.1
+#define h 0.0001
 #define k 1.0
 #define m 1.0
 #define T 1.0
 #define nu 0.0
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
-#define x0 1.0
+#define x0 2.0
 #define v0 0.0
-#define n_steps 100000000
+#define n_steps 2000000
 #define n_term (n_steps / 10) //cantidad arbitraria
 
 //Parámetros del Runge Kutta
@@ -57,7 +57,7 @@ int main(int argc, const char* argv[]) {
     v[0] = v0;
     
     for (i = 1; i < n_term; i++){
-        Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
     //fin de termalización, se toman la última posición y velocidad como nuevos parámetros de inicio
     
@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
     v[0] = v[n_term - 1];
 
     for (i = 1; i < n_steps; i++){
-        Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
 
     for (i = 0; i < n_steps; i++){
@@ -155,7 +155,7 @@ void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_p
     FILE* f;
     int i;
 
-    f = fopen("prueba.out", "w");
+    f = fopen("euler_0.out", "w");
     
     int increase = n_steps / 100000; // limita los puntos a plotear a 100000, para no saturar el plotter
 
