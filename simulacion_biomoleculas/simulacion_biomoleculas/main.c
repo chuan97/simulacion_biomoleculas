@@ -23,11 +23,10 @@
 #define c0 (2.0 * nu * kb * T)
 #define x0 2.0
 #define v0 0.0
-#define n_steps 2000000
+#define n_steps 1000000
 #define n_term (n_steps / 10) //cantidad arbitraria
 
-//Parámetros del Runge Kutta
-#define A1 0.5
+//Parámetros del Runge Kutta#define A1 0.5
 #define A2 0.5
 #define beta 1.0
 #define lambda0 1.0
@@ -57,7 +56,7 @@ int main(int argc, const char* argv[]) {
     v[0] = v0;
     
     for (i = 1; i < n_term; i++){
-        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
     //fin de termalización, se toman la última posición y velocidad como nuevos parámetros de inicio
     
@@ -66,7 +65,7 @@ int main(int argc, const char* argv[]) {
     v[0] = v[n_term - 1];
 
     for (i = 1; i < n_steps; i++){
-        Euler_maru(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
+        Verlet_exp(t[i-1], x[i-1], v[i-1], &t[i], &x[i], &v[i]);
     }
 
     for (i = 0; i < n_steps; i++){
@@ -155,7 +154,7 @@ void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_p
     FILE* f;
     int i;
 
-    f = fopen("euler_0.out", "w");
+    f = fopen("timestep_runge_0.0001.out", "w");
     
     int increase = n_steps / 100000; // limita los puntos a plotear a 100000, para no saturar el plotter
 

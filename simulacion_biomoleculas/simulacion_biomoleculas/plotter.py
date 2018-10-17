@@ -45,27 +45,27 @@ for row in f_4:
 
 plt.subplot(2, 2, 1)
 plt.plot(t, x_1, color = next(palette))
-plt.title('damping = 0.0')
+plt.title('h = 0.1')
 plt.ylabel('x')
 
 plt.subplot(2, 2, 2)
 plt.plot(t, x_2, color = next(palette))
-plt.title('damping = 0.1')
+plt.title('h = 0.01')
 
 plt.subplot(2, 2, 3)
 plt.plot(t, x_3, color = next(palette))
-plt.title('damping = 1.0')
+plt.title('h = 0.001')
 plt.xlabel('t')
 plt.ylabel('x')
 
 plt.subplot(2, 2, 4)
 plt.plot(t, x_4, color = next(palette))
-plt.title('damping = 10.0')
+plt.title('h = 0.0001')
 
 plt.xlabel('t')
 
 plt.tight_layout()
-plt.suptitle('Euler h = 0.0001')
+plt.suptitle('Verlet steps = 1000000')
 plt.subplots_adjust(top=0.88)
 
 plt.show()
