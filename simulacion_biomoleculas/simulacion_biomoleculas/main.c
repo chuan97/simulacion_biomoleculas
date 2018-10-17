@@ -18,12 +18,12 @@
 #define k 1.0
 #define m 1.0
 #define T 1.0
-#define nu 0.0
+#define nu 1.0
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
 #define x0 2.0
 #define v0 0.0
-#define n_steps 1000000
+#define n_steps 1000000000
 #define n_term (n_steps / 10) //cantidad arbitraria
 
 //Parámetros del Runge Kutta
