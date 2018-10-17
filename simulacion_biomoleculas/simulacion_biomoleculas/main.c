@@ -26,7 +26,8 @@
 #define n_steps 1000000
 #define n_term (n_steps / 10) //cantidad arbitraria
 
-//Parámetros del Runge Kutta#define A1 0.5
+//Parámetros del Runge Kutta
+#define A1 0.5
 #define A2 0.5
 #define beta 1.0
 #define lambda0 1.0
