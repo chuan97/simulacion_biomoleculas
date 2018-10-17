@@ -166,15 +166,35 @@ void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_p
     fclose(f);
 }
 
-void control_parameters(double* x, double* v, double* E_kin, double* E_pot){
-    double mean_kin, var_kin, mean_pot, var_pot, mean_x, var_x, mean_v, var_v;
-    
-    estimadores_estadisticos(E_kin, n_steps, &mean_kin, &var_kin);
-    estimadores_estadisticos(E_pot, n_steps, &mean_pot, &var_pot);
-    estimadores_estadisticos(x, n_steps, &mean_x, &var_x);
-    estimadores_estadisticos(v, n_steps, &mean_v, &var_v);
-    
-    printf("Energía cinética media: %lf\nEnergía potencial media: %lf\nEnergía térmica: %lf\n", mean_kin, mean_pot, 0.5 * kb * T);
-    printf("Posición media: %lf, Varianza: %lf\n", mean_x, var_x);
-    printf("Velocidad media: %lf, Varianza: %lf\n", mean_v, var_v);
+void control_parameters(double* x, double* v, double* E_kin, double* E_pot) {
+	double mean_kin, var_kin, mean_pot, var_pot, mean_x, var_x, mean_v, var_v, delta_x, min_x, max_x, delta_v, min_v, max_v;
+	int i;
+	FILE* f_x;
+	FILE* f_v;
+
+	double Hist_x[n_steps], Hist_v[n_steps];
+
+	f_x = fopen("histograma_x_verlet_10.0.out", "w");
+	f_v = fopen("histograma_v_verlet_10.0.out", "w");
+
+	estimadores_estadisticos(E_kin, n_steps, &mean_kin, &var_kin);
+	estimadores_estadisticos(E_pot, n_steps, &mean_pot, &var_pot);
+	estimadores_estadisticos(x, n_steps, &mean_x, &var_x);
+	estimadores_estadisticos(v, n_steps, &mean_v, &var_v);
+
+	histograma(x, Hist_x, n_steps, n_intervalos, &delta_x, &min_x, &max_x);
+	histograma(v, Hist_v, n_steps, n_intervalos, &delta_v, &min_v, &max_v);
+
+	for (i = 0; i < n_intervalos; i++) {
+		fprintf(f_x, "%lf %lf\n", min_x + i * delta_x, Hist_x[i]);
+		fprintf(f_v, "%lf %lf\n", min_v + i * delta_v, Hist_v[i]);
+	}
+
+	fclose(f_x);
+	fclose(f_v);
+
+
+	printf("Energía cinética media: %lf\nEnergía potencial media: %lf\nEnergía térmica: %lf\n", mean_kin, mean_pot, 0.5 * kb * T);
+	printf("Posición media: %lf, Varianza: %lf\n", mean_x, var_x);
+	printf("Velocidad media: %lf, Varianza: %lf\n", mean_v, var_v);
 }
