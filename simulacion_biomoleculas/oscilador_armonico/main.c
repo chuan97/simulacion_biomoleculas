@@ -14,17 +14,18 @@
 #include "estimadores_estadisticos.h"
 #include "histogram.h"
 
-#define h 0.0001
+#define h 0.01
 #define k 1.0
 #define m 1.0
 #define T 1.0
-#define nu 1.0
+#define nu 10.0
 #define kb 1.0
 #define c0 (2.0 * nu * kb * T)
 #define x0 2.0
 #define v0 0.0
 #define n_steps 1000000000
 #define n_term (n_steps / 10) //cantidad arbitraria
+#define n_intervalos 100
 
 //Parámetros del Runge Kutta
 #define A1 0.5
@@ -166,13 +167,13 @@ void save_trajectory(double* t, double* x, double* v, double* E_kin, double* E_p
     fclose(f);
 }
 
-void control_parameters(double* x, double* v, double* E_kin, double* E_pot) {
+void control_parameters(double* x, double* v, double* E_kin, double* E_pot){
 	double mean_kin, var_kin, mean_pot, var_pot, mean_x, var_x, mean_v, var_v, delta_x, min_x, max_x, delta_v, min_v, max_v;
 	int i;
 	FILE* f_x;
 	FILE* f_v;
 
-	double Hist_x[n_steps], Hist_v[n_steps];
+	double Hist_x[n_intervalos], Hist_v[n_intervalos];
 
 	f_x = fopen("histograma_x_verlet_10.0.out", "w");
 	f_v = fopen("histograma_v_verlet_10.0.out", "w");
